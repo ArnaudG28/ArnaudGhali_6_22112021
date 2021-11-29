@@ -1,20 +1,23 @@
-// Version 1.0 etape 1 : démarrage du serveur backend
+// Version 2.0 etape 2 : construire un parcours utilisateur
 
 // Application framework Express
 
 // import application Epress 
 const express = require('express');
+// import pour connection à la base de données Mongoose
+const mongoose = require('mongoose');
+// import des routers
+const sauceRoutes = require('./routes/sauce');
+const userRoutes = require('./routes/user');
 
 // application express
 const app = express();
-
-// recupere toutes les requêtes application/json et mete à disposition leur body sur l'objet req
+// recupere toutes les requêtes application/json (pas besoin d'utiliser bodyparse pour json car inclut dans express) 
+// et met à disposition leur body sur l'objet req
 app.use(express.json());
 
-// connection à la base de données Mongoose
-const mongoose = require('mongoose');
 
-// gestion de la connection à Mongoose
+// connection à la base de données Mongoose et gestion de la connection
 mongoose.connect('mongodb+srv://arno:arno@cluster0.owgus.mongodb.net/myFirstDatabase?retryWrites=true&w=majority',
   { useNewUrlParser: true,
     useUnifiedTopology: true })
@@ -32,48 +35,10 @@ app.use((req, res, next) => {
   next();
 });
 
-// middelware
-// utilisation de la methode use pour envoi et retour de la reponse au format json et de next pour renvoi à la prochiane fonction 
 
-app.post('/api/sauces', (req, res, next) => {
-  console.log(req.body);
-  res.status(201).json({
-    message: 'Objet créé !'
-  });
-});
+// enregistrement des routers
+app.use('/api/sauces', sauceRoutes);
+app.use('/api/auth', userRoutes);
 
-
-app.get('/api/sauces', (req, res, next) => {
-  const sauces = [
-    {
-      userId: 'arnaud1',
-      name: 'hot spicy',
-      manufcturer: 'Spicy Corporation',
-      description: 'Sauce aux piments de Cayenne',
-      mainPepper : 'Piments de Cayenne',
-      imageUrl: 'https://www.sauce-piquante.fr/736-large_default/sauce-classic-cayenne-cajohns.jpg',
-      heat : 7,
-      likes: 400,
-      dislikes: 200,
-      usersLiked : [arnaud, thomas],
-      usersDisliked: [angelique, julien],
-    },
-    {
-      userId: 'arnaud2',
-      name: 'Carolina Reaper Hellicious',
-      manufcturer: 'Spicy Corporation',
-      description: 'Purée de piments',
-      mainPepper : 'Piments Carolina Reaper frais',
-      imageUrl: 'https://www.sauce-piquante.fr/605-large_default/puree-de-piment-carolina-reaper-hellicious.jpg',
-      heat : 9,
-      likes: 800,
-      dislikes: 400,
-      usersLiked : [arnaud, thomas],
-      usersDisliked: [angelique, julien],
-    },
-  ];
-  res.status(200).json(stuff);
-});
-
-// export de l'application
-module.exports = app;
+ // export de l'application
+ module.exports = app;
