@@ -1,4 +1,4 @@
-// Version 3.0 etapes 3 et 4 : demarrer le middleware et construire la route API
+// Version 5.0 etape 5 : terminer la route Sauce de l'API et tests
 
 // logique des routes sauce
 
@@ -34,6 +34,8 @@ router.get('/:id', auth, sauceCtrl.getOneSauce);
 // renvoie sous forme de tableau la liste de tous les objets sauce de la base de données
 router.get('/' + '', auth, sauceCtrl.getAllSauces);
   
-  
+// gestion des likes des sauces
+router.post('/:id/like', auth, sauceCtrl.likeDislike);
+
 // export du router
 module.exports = router;

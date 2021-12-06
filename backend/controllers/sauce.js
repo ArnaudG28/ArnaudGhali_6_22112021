@@ -1,4 +1,4 @@
-// Version 3.0 etapes 3 et 4 : demarrer le middleware et construire la route API
+// Version 5.0 etape 5 : terminer la route Sauce de l'API et tests
 
 // logique métier des fonctions sauce
 
@@ -7,7 +7,9 @@ const Sauce = require('../models/sauce');
 
 // import du package filesystem
 const fs = require('fs');
+const { put } = require('../routes/sauce');
 const sauce = require('../models/sauce');
+//const sauce = require('../models/sauce');
 
 // fonctions métiers pour les sauces
 // on va exporter les différentes fonctions metiers 
@@ -66,7 +68,7 @@ exports.deleteSauce = (req, res, next) => {
 
 // renvoie une sauce
 exports.getOneSauce =  (req, res, next) => {
-    Sauce.findOne()
+    Sauce.findOne({_id: req.params.id})
         .then(sauce => res.status(200).json(sauce))
         .catch(error => res.status(400).json({ error }));
 };
@@ -79,8 +81,140 @@ exports.getAllSauces =  (req, res, next) => {
       .catch(error => res.status(400).json({ error }));
 };
 
+// gestion des likes sauce 
+exports.likeDislike = (req, res, next) => {
+  
+  // on recupère le like dans le body
+  const like = req.body.like;
+  // on récupère l'ID de l'utilisateur
+  const userId = req.body.userId;
+  // on récupère l'ID de la sauce 
+  const sauceId = req.params.id;
+
+  // régles de gestion des likes ou dislikes
+  // si like = 1,l'utilisateur aime la sauce 
+  // si like  = 0,l'utilisateur annule son like ou son dislike
+  // si like =-1, l'utilisateur n'aime pas la sauce, c'est un dislike,
+
+  // L'identifiant de l'utilisateur doit être ajouté ou retiré du tableau approprié, 
+  // en gardant une trace de ses préférences et en l'empêchant d'aimer ou de ne pas aimer la même sauce plusieurs fois.
+  // Nombre total de like et de dislike à mettre à jour avec chaque nouvelle notation
+
+  // Gestion des régles
+  try {
+    // on recupère les données de la sauce
+    Sauce.findOne({ _id:sauceId })
+      .then(sauce => {
+        console.log(like);
+
+           // si c'est un like
+          if (like === 1) { 
+
+              console.log('1');
+              // on vérifie si l'utilisateur a déjà like  la sauce 
+              const userLikedSauce = sauce.usersLiked.find((element) => element === userId) !== undefined;
+              //console.log(userLikedSauce);
+              if (userLikedSauce === false) {
+                //console.log('user');   
+                Sauce.updateOne(
+                  {
+                    _id: sauceId,
+                  },
+                  {
+                    // mongo  ajoute une valeur spécifiée à un tableau
+                    $push: {
+                      usersLiked: userId,
+                    },
+                    // mongo  operator increments
+                    $inc: {
+                      // on incremente de 1
+                      likes: +1,
+                    },
+                  }
+                )
+                .then(() => res.status(200).json({message: 'Like ajouté !'}))
+                .catch((error) => res.status(400).json({error}))    
+              }
+
+          // si c'est un dislike
+          } else if (like === -1) {
+              console.log('-1');
+              // on vérifie si l'utilisateur a déjà dislike  la sauce 
+              const userDislikedSauce = sauce.usersDisliked.find((element) => element === userId) !== undefined;
+              //console.log(userLikedSauce);
+              if (userDislikedSauce === false) {
+                //console.log('user');   
+                Sauce.updateOne(
+                  {
+                    _id: sauceId,
+                  },
+                  {
+                    // mongo  ajoute une valeur spécifiée à un tableau
+                    $push: {
+                      usersLiked: userId,
+                    },
+                    // mongo  operator increments
+                    $inc: {
+                      // on incremente de 1
+                      dislikes: +1
+                    },
+                  }
+                )
+                .then(() => res.status(200).json({message: 'Dislike ajouté !'}))
+                .catch((error) => res.status(400).json({error}))    
+              }
+          }
+          // si on annule un like ou un dislike
+          else if (like === 0) {
+            // si on annule  un like
+            if (sauce.usersLiked.includes(userId)) { 
+              Sauce.updateOne({
+                  _id: sauceId
+                }, {
+                  // mongo  supprime une valeur spécifiée à un tableau
+                  $pull: {
+                    usersLiked: userId
+                  },
+                  // mongo  operator increments
+                  $inc: {
+                    // on desincremente de -1
+                    likes: -1
+                  }, 
+                })
+                .then(() => res.status(200).json({message: 'Like retiré !'}))
+                .catch((error) => res.status(400).json({error}))
+
+              }
+              if (sauce.usersDisliked.includes(userId)) { // Si il s'agit d'annuler un dislike
+                Sauce.updateOne({
+                    _id: sauceId
+                  }, {
+                    // mongo  supprime une valeur spécifiée à un tableau
+                    $pull: {
+                      usersLiked: userId
+                    },
+                    // mongo  operator increments
+                    $inc: {
+                      // on desincremente de -1
+                      likes: -1,
+                    }, 
+                  })
+                  .then(() => res.status(200).json({message: 'Dislike retiré !'}))
+                  .catch((error) => res.status(400).json({error}))
+              }
+          } else {
+            throw new Error('Impossible de mettre à jour!');
+          }
 
 
+      })
+      .catch(error => res.status(400).json({ error }));
 
+  } catch (error) {
+      error => res.status(500).json({ error });
+  }
+
+};
+ 
 
 
