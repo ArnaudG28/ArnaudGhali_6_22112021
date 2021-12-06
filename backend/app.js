@@ -1,4 +1,4 @@
-// Version 2.0 etape 2 : construire un parcours utilisateur
+// Version 3.0 etapes 3 et 4 : demarrer le middleware et construire la route API
 
 // Application framework Express
 
@@ -9,6 +9,8 @@ const mongoose = require('mongoose');
 // import des routers
 const sauceRoutes = require('./routes/sauce');
 const userRoutes = require('./routes/user');
+// creation du path serveur
+const path = require('path');
 
 // application express
 const app = express();
@@ -34,6 +36,9 @@ app.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
   next();
 });
+
+// traitement de la route vers le repertoire images
+app.use('/images', express.static(path.join(__dirname, 'images')));
 
 
 // enregistrement des routers

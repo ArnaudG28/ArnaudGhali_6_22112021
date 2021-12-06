@@ -1,4 +1,4 @@
-// Version 2.0 etape 2 : construire un parcours utilisateur
+// Version 3.0 etapes 3 et 4 : demarrer le middleware et construire la route API
 
 // logique métier des fonctions utilisateur
 

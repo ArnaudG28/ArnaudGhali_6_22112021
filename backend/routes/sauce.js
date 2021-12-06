@@ -1,4 +1,4 @@
-// Version 2.0 etape 2 : construire un parcours utilisateur
+// Version 3.0 etapes 3 et 4 : demarrer le middleware et construire la route API
 
 // logique des routes sauce
 
@@ -9,7 +9,8 @@ const express = require('express');
 const sauceCtrl = require('../controllers/sauce');
 // import du middelware de protection des routes authentification
 const auth = require ('../middleware/auth');
-
+// import du middelware de gestion de fichier
+const multer = require ('../middleware/multer-config');
 
 // création d'un routeur Express 
 const router = express.Router();
@@ -18,11 +19,11 @@ const router = express.Router();
 // enregistrement des differentes routes en fonction des logiques métiers (création, suppresion, modification, ...) avec protection auth
 // dans le router express avant enregistrament dans l'application
 
-// route pour la creation d'une sauce
-router.post('/', auth, sauceCtrl.createSauce);
+// route pour la creation d'une sauce incluant un fichier image
+router.post('/', auth, multer, sauceCtrl.createSauce);
 
 // route pour la modification d'une sauce
-router.put('/:id', auth, sauceCtrl.modifySauce);
+router.put('/:id', auth, multer, sauceCtrl.modifySauce);
 
 // suppression d'une sauce avec l'id fourni
 router.delete('/:id', auth, sauceCtrl.deleteSauce);
