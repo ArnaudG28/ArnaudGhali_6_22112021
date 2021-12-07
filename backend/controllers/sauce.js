@@ -1,4 +1,4 @@
-// Version 5.0 etape 5 : terminer la route Sauce de l'API et tests
+// Version 5.1 etape 5 : correction likes et dislikes
 
 // logique métier des fonctions sauce
 
@@ -110,7 +110,7 @@ exports.likeDislike = (req, res, next) => {
            // si c'est un like
           if (like === 1) { 
 
-              console.log('1');
+              //console.log('1');
               // on vérifie si l'utilisateur a déjà like  la sauce 
               const userLikedSauce = sauce.usersLiked.find((element) => element === userId) !== undefined;
               //console.log(userLikedSauce);
@@ -138,7 +138,7 @@ exports.likeDislike = (req, res, next) => {
 
           // si c'est un dislike
           } else if (like === -1) {
-              console.log('-1');
+              //console.log('-1');
               // on vérifie si l'utilisateur a déjà dislike  la sauce 
               const userDislikedSauce = sauce.usersDisliked.find((element) => element === userId) !== undefined;
               //console.log(userLikedSauce);
@@ -151,7 +151,7 @@ exports.likeDislike = (req, res, next) => {
                   {
                     // mongo  ajoute une valeur spécifiée à un tableau
                     $push: {
-                      usersLiked: userId,
+                      usersDisliked: userId,
                     },
                     // mongo  operator increments
                     $inc: {
@@ -166,7 +166,7 @@ exports.likeDislike = (req, res, next) => {
           }
           // si on annule un like ou un dislike
           else if (like === 0) {
-            // si on annule  un like
+            // si on annule un like
             if (sauce.usersLiked.includes(userId)) { 
               Sauce.updateOne({
                   _id: sauceId
@@ -185,13 +185,14 @@ exports.likeDislike = (req, res, next) => {
                 .catch((error) => res.status(400).json({error}))
 
               }
-              if (sauce.usersDisliked.includes(userId)) { // Si il s'agit d'annuler un dislike
+              // si on annule un dislike
+              if (sauce.usersDisliked.includes(userId)) {
                 Sauce.updateOne({
                     _id: sauceId
                   }, {
                     // mongo  supprime une valeur spécifiée à un tableau
                     $pull: {
-                      usersLiked: userId
+                      usersDisliked: userId
                     },
                     // mongo  operator increments
                     $inc: {
